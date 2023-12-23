@@ -1,0 +1,162 @@
+﻿@model IEnumerable<Login.Models.Users>
+
+    @{
+        ViewBag.Title = "Users";
+        Layout = "~/Views/Shared/_Layout.cshtml";
+    }
+
+    <h2>Users</h2>
+    <p>
+        @Html.TextBox("Search")  <input type="submit" value="Search" id="searchButton" />
+        <input type="submit" value="Refresh" id="refreshButton" />
+    </p>
+
+    <p>
+        @Html.ActionLink("Create New", "Create")
+    </p>
+
+
+
+
+
+
+   
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th id="Username">Username</th>
+            <th id="address">Address</th>
+            <th id="phone">Phone</th>
+            <th id="email">Email</th>
+        </tr>
+    </thead>
+    <tbody id="tableBody">
+        <!-- Table rows will be added dynamically here -->
+    </tbody>
+</table>
+
+<div id="Pager" class="Pager text-center" style="float: right; margin-top: 5px;">    
+        <div id="Pager" class="Pager" style="float: right; margin-top: 5px;">
+            <button id="prevPage" style="display: inline-block;"  class="page-link">Previous</button>
+            <div id="pageNumberContainer" style="display: inline-block;"></div>
+            <button id="nextPage" style="display: inline-block;"  class="page-link">Next</button>
+        </div>
+</div>
+
+<label>Page Size</label>
+
+<select id="PageSizeDropdown" style="margin: 4px">
+
+    <option value="5">5</option>
+
+    <option value="10">10</option>
+
+    <option value="20">15</option>
+
+</select>
+
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+<script>
+    var sortBy = 'Username ASC';
+    var searchValue = null;
+    var Page = 1;
+    var PageSize = 5;
+   var RowCount;
+    $(document).ready(function () {
+        getList();
+    });
+
+    document.getElementById('searchButton').addEventListener('click', function () {
+        searchValue = $('#Search').val();
+
+        getList();
+    });
+    document.getElementById('refreshButton').addEventListener('click', function () {
+        $('#Search').val('');
+        searchValue = null
+        getList();
+    });
+
+    document.getElementById('Username').addEventListener('click', function () {
+        doSorting(this.id);
+    });
+
+    document.getElementById('address').addEventListener('click', function () {
+        doSorting(this.id);
+    });
+
+    document.getElementById('email').addEventListener('click', function () {
+        doSorting(this.id);
+    });
+
+    document.getElementById('PageSizeDropdown').addEventListener('click', function () {
+        PageSize = this.value;
+        getList();
+    });
+    document.getElementById('nextPage').addEventListener('click', function () {
+        Page = Page + 1;
+        getList();
+    });
+    document.getElementById('prevPage').addEventListener('click', function () {
+        Page = Page - 1;
+        getList();
+    });
+
+
+    function getList()
+    {
+        $.ajax({
+            url: '/AllUsers/Users',
+            type: 'POST',
+            data: { search: searchValue, sortBy: sortBy, Page: Page, PageSize: PageSize},
+            success: function (data) {
+                var tableBody = document.getElementById('tableBody');
+                tableBody.innerHTML = '';
+                data.forEach(function (item) {
+                    var row = document.createElement('tr');
+                    row.innerHTML = `
+                        <input type="hidden"  value="${item.RowNum}" id="rowCount" />
+                        <td>${item.Username}</td>
+                        <td>${item.Address}</td>
+                        <td>${item.Phone}</td>
+                        <td>${item.Email}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                RowCount = document.getElementById("rowCount").value;
+                var NumPages = Math.ceil(RowCount / PageSize);
+                var pageNumberContainer = $('#pageNumberContainer');
+                pageNumberContainer.empty();
+
+                for (var i = 1; i <= NumPages; i++) {
+                    var button = $('<button class="pageNumber">' + i + '</button>');
+                    button.data('pageNumber', i);
+                    pageNumberContainer.append(button);
+                    button.on('click', function () {
+                       Page = $(this).data('pageNumber'); 
+                        getList();
+                    });
+                }
+
+            },
+            error: function (error) {
+                console.error('Error fetching JSON:', error);
+            }
+        });
+    }
+
+    function doSorting(sortColumn)
+    {
+        if (sortBy === sortColumn + ' ASC') {
+            sortBy = sortColumn + ' DESC';
+        }
+        else {
+            sortBy = sortColumn + ' ASC';
+        }
+        getList();
+    }
+
+</script>
+
+

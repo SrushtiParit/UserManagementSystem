@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Login.Models.Users>
+<script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+<table class="table">
+    <tr>
+        <th id="Username">
+            @Html.DisplayNameFor(model => model.Username)
+        </th>
+        @*<th id="username">
+                <a href="javascript:void(0);">Username</a>
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.Phone)
+        </th>
+        <th id="address">
+            @Html.DisplayNameFor(model => model.Address)
+        </th>
+        <th id="email">
+            @Html.DisplayNameFor(model => model.Email)
+        </th>
+        <th></th>
+    </tr>
+
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Username)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Phone)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Email)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { username = item.Username }) |
+                @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            </td>
+        </tr>
+    }
+    </table>
+
